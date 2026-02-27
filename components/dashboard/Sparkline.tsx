@@ -92,8 +92,8 @@ function CustomTooltip({ active, payload, format }: CustomTooltipProps) {
 export function Sparkline({ data, format, timeHorizon = "week", className }: SparklineProps) {
   const { data: chartData, min, max } = data;
 
-  // Show dots only for week/month (few data points), hide for hour/day (many data points)
-  const showDots = timeHorizon === "week" || timeHorizon === "month";
+  // Show dots for day/week/month (few data points), hide for hour (many data points)
+  const showDots = timeHorizon !== "hour";
 
   // Format min/max for display
   const formattedMin = formatValue(min, format);

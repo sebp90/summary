@@ -27,8 +27,7 @@ function generateSparklineData(
 
   switch (timeHorizon) {
     case "hour":
-    case "day":
-      // Hourly granularity over 7 days = 168 points
+      // Hourly granularity over 7 days = 168 points (no dots, continuous line)
       points = 7 * 24;
       getDate = (i: number) => {
         const date = new Date(now);
@@ -39,6 +38,22 @@ function generateSparklineData(
       getComparisonDate = (i: number) => {
         const date = new Date(now);
         date.setHours(date.getHours() - (points - 1 - i) - 7 * 24);
+        return date;
+      };
+      break;
+
+    case "day":
+      // Daily granularity over 7 days = 7 points (with dots)
+      points = 7;
+      getDate = (i: number) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (points - 1 - i));
+        return date;
+      };
+      // Comparison = same day previous week
+      getComparisonDate = (i: number) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (points - 1 - i) - 7);
         return date;
       };
       break;
