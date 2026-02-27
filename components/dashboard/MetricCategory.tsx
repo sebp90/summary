@@ -2,7 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MetricCategory as MetricCategoryType, DeltaMode, ColumnHeaders } from "@/lib/types";
+import { MetricCategory as MetricCategoryType, DeltaMode, ColumnHeaders, TimeHorizon } from "@/lib/types";
 import { MetricRow } from "./MetricRow";
 import { ValueCell } from "./ValueCell";
 import { Sparkline } from "./Sparkline";
@@ -11,6 +11,7 @@ interface MetricCategoryProps {
   category: MetricCategoryType;
   deltaMode: DeltaMode;
   headers: ColumnHeaders;
+  timeHorizon: TimeHorizon;
   isExpanded: boolean;
   onToggle: () => void;
   expandedMetrics: Set<string>;
@@ -34,6 +35,7 @@ export function MetricCategory({
   category,
   deltaMode,
   headers,
+  timeHorizon,
   isExpanded,
   onToggle,
   expandedMetrics,
@@ -86,6 +88,7 @@ export function MetricCategory({
             <Sparkline
               data={firstMetric.sparkline}
               format={firstMetric.lastPeriod.format}
+              timeHorizon={timeHorizon}
             />
             <ValueCell
               metricValue={firstMetric.rollingPeriod}
@@ -118,6 +121,7 @@ export function MetricCategory({
                 metric={metric}
                 deltaMode={deltaMode}
                 headers={headers}
+                timeHorizon={timeHorizon}
                 isExpanded={expandedMetrics.has(metric.id)}
                 onToggle={() => onToggleMetric(metric.id)}
                 invertColors={shouldInvert}

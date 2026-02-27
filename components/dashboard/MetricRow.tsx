@@ -2,7 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Metric, DeltaMode, ColumnHeaders } from "@/lib/types";
+import { Metric, DeltaMode, ColumnHeaders, TimeHorizon } from "@/lib/types";
 import { ValueCell } from "./ValueCell";
 import { Sparkline } from "./Sparkline";
 
@@ -10,6 +10,7 @@ interface MetricRowProps {
   metric: Metric;
   deltaMode: DeltaMode;
   headers: ColumnHeaders;
+  timeHorizon: TimeHorizon;
   isExpanded?: boolean;
   onToggle?: () => void;
   invertColors?: boolean;
@@ -20,6 +21,7 @@ export function MetricRow({
   metric,
   deltaMode,
   headers,
+  timeHorizon,
   isExpanded = false,
   onToggle,
   invertColors = false,
@@ -91,6 +93,7 @@ export function MetricRow({
         <Sparkline
           data={metric.sparkline}
           format={metric.lastPeriod.format}
+          timeHorizon={timeHorizon}
         />
 
         {/* Rolling Period */}
@@ -110,6 +113,7 @@ export function MetricRow({
               metric={child}
               deltaMode={deltaMode}
               headers={headers}
+              timeHorizon={timeHorizon}
               invertColors={invertColors}
             />
           ))}

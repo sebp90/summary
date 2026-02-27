@@ -8,13 +8,14 @@ import {
   XAxis,
   Tooltip,
 } from "recharts";
-import { SparklineData, ValueFormat } from "@/lib/types";
+import { SparklineData, ValueFormat, TimeHorizon } from "@/lib/types";
 import { formatValue } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface SparklineProps {
   data: SparklineData;
   format: ValueFormat;
+  timeHorizon?: TimeHorizon;
   className?: string;
 }
 
@@ -88,8 +89,11 @@ function CustomTooltip({ active, payload, format }: CustomTooltipProps) {
   );
 }
 
-export function Sparkline({ data, format, className }: SparklineProps) {
+export function Sparkline({ data, format, timeHorizon = "week", className }: SparklineProps) {
   const { data: chartData, min, max } = data;
+
+  // Show dots only for week/month (few data points), hide for hour/day (many data points)
+  const showDots = timeHorizon === "week" || timeHorizon === "month";
 
   // Format min/max for display
   const formattedMin = formatValue(min, format);
@@ -129,17 +133,17 @@ export function Sparkline({ data, format, className }: SparklineProps) {
               dot={false}
               isAnimationActive={false}
             />
-            {/* Current period line - teal with dots */}
+            {/* Current period line - teal, dots only for week/month */}
             <Line
               type="monotone"
               dataKey="value"
               stroke="var(--teal-primary)"
               strokeWidth={1.5}
-              dot={{
+              dot={showDots ? {
                 r: 2.5,
                 fill: "var(--teal-primary)",
                 strokeWidth: 0,
-              }}
+              } : false}
               activeDot={{
                 r: 3.5,
                 fill: "var(--teal-primary)",

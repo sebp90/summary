@@ -163,11 +163,11 @@ export function getDateRanges(timeHorizon: TimeHorizon): DateRanges {
 }
 
 /**
- * Get chart X-axis date labels (7 points for the sparkline)
- * - HOUR: last 7 hours
- * - DAY: last 7 days
- * - WEEK: last 7 weeks
- * - MONTH: last 7 months
+ * Get chart X-axis date labels (always 7 labels)
+ * - HOUR: 7 days (hourly data points within)
+ * - DAY: 7 days (hourly data points within)
+ * - WEEK: 7 weeks
+ * - MONTH: 7 months
  */
 export function getChartDates(timeHorizon: TimeHorizon): string[] {
   const now = new Date();
@@ -178,13 +178,6 @@ export function getChartDates(timeHorizon: TimeHorizon): string[] {
     return `${d.getMonth() + 1}/${d.getDate()}`;
   };
 
-  const formatHour = (d: Date) => {
-    const hour = d.getHours();
-    const ampm = hour >= 12 ? 'p' : 'a';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}${ampm}`;
-  };
-
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   for (let i = points - 1; i >= 0; i--) {
@@ -192,19 +185,14 @@ export function getChartDates(timeHorizon: TimeHorizon): string[] {
 
     switch (timeHorizon) {
       case "hour":
-        // Last 7 hours
-        date.setHours(date.getHours() - i);
-        dates.push(formatHour(date));
-        break;
-
       case "day":
-        // Last 7 days
+        // Both show 7 days in header (but have hourly data points)
         date.setDate(date.getDate() - i);
         dates.push(formatDate(date));
         break;
 
       case "week":
-        // Last 7 weeks (show start of each week)
+        // Last 7 weeks
         date.setDate(date.getDate() - i * 7);
         dates.push(formatDate(date));
         break;

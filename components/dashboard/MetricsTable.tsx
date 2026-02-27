@@ -100,6 +100,7 @@ export function MetricsTable({
           category={category}
           deltaMode={deltaMode}
           headers={headers}
+          timeHorizon={data.filters.timeHorizon}
           isExpanded={expandedCategories.has(category.id)}
           onToggle={() => onToggleCategory(category.id)}
           expandedMetrics={expandedMetrics}

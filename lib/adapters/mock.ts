@@ -14,65 +14,102 @@ function generateSparklineData(
   timeHorizon: TimeHorizon,
   variance: number = 0.15
 ): SparklineData {
-  const points = 7;
   const data = [];
   let currentValue = baseValue * (1 - variance * 0.5);
   let comparisonValue = currentValue * 0.9;
 
   const now = new Date();
 
+  // Determine number of points and interval based on time horizon
+  let points: number;
+  let getDate: (i: number) => Date;
+  let getComparisonDate: (i: number) => Date;
+
+  switch (timeHorizon) {
+    case "hour":
+    case "day":
+      // Hourly granularity over 7 days = 168 points
+      points = 7 * 24;
+      getDate = (i: number) => {
+        const date = new Date(now);
+        date.setHours(date.getHours() - (points - 1 - i));
+        return date;
+      };
+      // Comparison = same hour previous week
+      getComparisonDate = (i: number) => {
+        const date = new Date(now);
+        date.setHours(date.getHours() - (points - 1 - i) - 7 * 24);
+        return date;
+      };
+      break;
+
+    case "week":
+      // Weekly granularity over 7 weeks = 7 points
+      points = 7;
+      getDate = (i: number) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (points - 1 - i) * 7);
+        return date;
+      };
+      // Comparison = previous 7 weeks
+      getComparisonDate = (i: number) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (points - 1 - i) * 7 - 7 * 7);
+        return date;
+      };
+      break;
+
+    case "month":
+      // Monthly granularity over 7 months = 7 points
+      points = 7;
+      getDate = (i: number) => {
+        const date = new Date(now);
+        date.setMonth(date.getMonth() - (points - 1 - i));
+        return date;
+      };
+      // Comparison = same month previous year
+      getComparisonDate = (i: number) => {
+        const date = new Date(now);
+        date.setMonth(date.getMonth() - (points - 1 - i) - 12);
+        return date;
+      };
+      break;
+
+    default:
+      points = 7;
+      getDate = (i: number) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (points - 1 - i));
+        return date;
+      };
+      getComparisonDate = (i: number) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - (points - 1 - i) - 7);
+        return date;
+      };
+  }
+
+  // Generate data points
   for (let i = 0; i < points; i++) {
     const change = (Math.random() - 0.4) * variance * baseValue;
     currentValue = Math.max(0, currentValue + change);
-    comparisonValue = currentValue * (0.85 + Math.random() * 0.1);
 
-    let dateLabel: string;
+    // Comparison value with some variance from current
+    const compChange = (Math.random() - 0.5) * variance * baseValue * 0.5;
+    comparisonValue = currentValue * (0.85 + Math.random() * 0.15) + compChange;
 
-    switch (timeHorizon) {
-      case "hour":
-        // Last 7 hours, each point = 1 hour
-        const hourDate = new Date(now);
-        hourDate.setHours(hourDate.getHours() - (points - 1 - i));
-        dateLabel = hourDate.toISOString();
-        break;
-
-      case "day":
-        // Last 7 days, each point = 1 day
-        const dayDate = new Date(now);
-        dayDate.setDate(dayDate.getDate() - (points - 1 - i));
-        dateLabel = dayDate.toISOString().split("T")[0];
-        break;
-
-      case "week":
-        // Last 7 weeks, each point = 1 week
-        const weekDate = new Date(now);
-        weekDate.setDate(weekDate.getDate() - (points - 1 - i) * 7);
-        dateLabel = weekDate.toISOString().split("T")[0];
-        break;
-
-      case "month":
-        // Last 7 months, each point = 1 month
-        const monthDate = new Date(now);
-        monthDate.setMonth(monthDate.getMonth() - (points - 1 - i));
-        dateLabel = monthDate.toISOString().split("T")[0];
-        break;
-
-      default:
-        const defaultDate = new Date(now);
-        defaultDate.setDate(defaultDate.getDate() - (points - 1 - i));
-        dateLabel = defaultDate.toISOString().split("T")[0];
-    }
+    const date = getDate(i);
 
     data.push({
-      date: dateLabel,
+      date: date.toISOString(),
       value: Math.round(currentValue * 100) / 100,
       comparison: Math.round(comparisonValue * 100) / 100,
     });
   }
 
-  const values = data.map((d) => d.value);
-  const min = Math.min(...values, ...data.map((d) => d.comparison));
-  const max = Math.max(...values, ...data.map((d) => d.comparison));
+  const allValues = [...data.map((d) => d.value), ...data.map((d) => d.comparison)];
+  const min = Math.min(...allValues);
+  const max = Math.max(...allValues);
 
   return { data, min, max };
 }
