@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { DashboardData, TimeHorizon, DeltaMode } from "@/lib/types";
 import { mockAdapter } from "@/lib/adapters/mock";
+import { doozeAdapter } from "@/lib/adapters/dooze";
 import { GlobalFilters } from "./GlobalFilters";
 import { MetricsTable } from "./MetricsTable";
 
@@ -32,7 +33,9 @@ export function DashboardShell({ title = "dooze" }: DashboardShellProps) {
     async function fetchData() {
       setLoading(true);
       try {
-        const result = await mockAdapter.getMetrics(timeHorizon);
+        // Use dooze adapter if API URL is configured, otherwise fall back to mock
+        const adapter = process.env.NEXT_PUBLIC_DOOZE_API_URL ? doozeAdapter : mockAdapter;
+        const result = await adapter.getMetrics(timeHorizon);
         if (!cancelled) {
           setData(result);
         }
