@@ -253,13 +253,11 @@ export class DoozeAdapter implements MetricsAdapter {
   }
 
   async getMetrics(timeHorizon: TimeHorizon): Promise<DashboardData> {
-    const apiHorizon = timeHorizon === "hour" ? "day" : timeHorizon;
-    const period = { day: "1d", week: "7d", month: "30d" }[apiHorizon] ?? "7d";
-    const days = { day: 1, week: 7, month: 30 }[apiHorizon] ?? 7;
+    const appUsageDays = { hour: 1, day: 7, week: 49, month: 210 }[timeHorizon] ?? 7;
 
     const [dashboardRes, appUsageRes] = await Promise.all([
-      this.fetchJSON<APIDashboardData>(`/analytics/metrics?period=${period}`),
-      this.fetchJSON<APIAppUsageResponse>(`/analytics/app-usage?days=${days}`),
+      this.fetchJSON<APIDashboardData>(`/analytics/metrics?time_horizon=${timeHorizon}`),
+      this.fetchJSON<APIAppUsageResponse>(`/analytics/app-usage?days=${appUsageDays}`),
     ]);
 
     return this.transform(dashboardRes, appUsageRes, timeHorizon);
